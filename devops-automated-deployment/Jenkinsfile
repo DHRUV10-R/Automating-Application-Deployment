@@ -2,10 +2,6 @@ pipeline {
 
     agent any
 
-    environment {
-        IMAGE_NAME = "devops-app"
-    }
-
     stages {
 
         stage('Checkout') {
@@ -17,7 +13,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building application...'
+                echo 'Checking project files...'
+                sh 'pwd'
                 sh 'ls -la'
                 sh 'ls -la app'
             }
@@ -26,56 +23,11 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing application files...'
+
                 sh 'test -f app/index.html'
                 sh 'test -f app/style.css'
+
                 echo 'Application files verified successfully.'
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                echo 'Building Docker image...'
-
-                sh """
-                    docker build \
-                    -t ${IMAGE_NAME}:${BUILD_NUMBER} \
-                    .
-                """
-            }
-        }
-
-        stage('Docker Verify') {
-            steps {
-                echo 'Verifying Docker image...'
-
-                sh """
-                    docker image inspect \
-                    ${IMAGE_NAME}:${BUILD_NUMBER}
-                """
-            }
-        }
-
-        stage('Deploy with Ansible') {
-            steps {
-                echo 'Deploying application using Ansible...'
-
-                sh """
-                    ansible-playbook \
-                    -i ansible/inventory \
-                    ansible/deploy.yml \
-                    -e image_tag=${BUILD_NUMBER}
-                """
-            }
-        }
-
-        stage('Verify Deployment') {
-            steps {
-                echo 'Verifying deployed application...'
-
-                sh '''
-                    sleep 5
-                    curl -f http://localhost:8080
-                '''
             }
         }
     }
@@ -84,7 +36,7 @@ pipeline {
 
         success {
             echo '========================================='
-            echo 'APPLICATION DEPLOYED SUCCESSFULLY'
+            echo 'GITHUB -> JENKINS SUCCESS'
             echo '========================================='
         }
 
