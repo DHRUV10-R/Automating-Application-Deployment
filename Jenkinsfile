@@ -3,13 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                echo 'Checking out source code from GitHub...'
-                checkout scm
-            }
-        }
-
         stage('Build') {
             steps {
                 echo 'Checking project files...'
@@ -23,6 +16,9 @@ pipeline {
                 bat 'dir app'
             }
         }
+
+        // Docker stage
+        // Ansible deployment stage
     }
 
     post {
