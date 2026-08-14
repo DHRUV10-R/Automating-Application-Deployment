@@ -1,0 +1,45 @@
+---
+- name: Deploy application using Docker
+  hosts: webserver
+  become: false
+
+  vars:
+    container_name: devops-app
+    image_name: devops-app
+    image_tag: "{{ image_tag | default('latest') }}"
+    host_port: 8080
+    container_port: 80
+
+  tasks:
+
+    - name: Stop existing application container
+      ansible.builtin.command:
+        cmd: docker stop {{ container_name }}
+      register: stop_result
+      failed_when: false
+      changed_when: stop_result.rc == 0
+
+    - name: Remove existing application container
+      ansible.builtin.command:
+        cmd: docker rm {{ container_name }}
+      register: remove_result
+      failed_when: false
+      changed_when: remove_result.rc == 0
+
+    - name: Start new application container
+      ansible.builtin.command:
+        cmd: >
+          docker run -d
+          --name {{ container_name }}
+          -p {{ host_port }}:{{ container_port }}
+          {{ image_name }}:{{ image_tag }}
+
+    - name: Verify running container
+      ansible.builtin.command:
+        cmd: docker ps --filter name={{ container_name }}
+      register: container_status
+      changed_when: false
+
+    - name: Display container status
+      ansible.builtin.debug:
+        var: container_status.stdout
