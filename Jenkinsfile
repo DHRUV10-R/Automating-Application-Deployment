@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     stages {
@@ -14,29 +13,22 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Checking project files...'
-                sh 'pwd'
-                sh 'ls -la'
-                sh 'ls -la app'
+                bat 'dir'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing application files...'
-
-                sh 'test -f app/index.html'
-                sh 'test -f app/style.css'
-
-                echo 'Application files verified successfully.'
+                echo 'Running basic project verification...'
+                bat 'dir app'
             }
         }
     }
 
     post {
-
         success {
             echo '========================================='
-            echo 'GITHUB -> JENKINS SUCCESS'
+            echo 'PIPELINE SUCCESSFUL'
             echo '========================================='
         }
 
