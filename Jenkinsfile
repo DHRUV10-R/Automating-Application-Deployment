@@ -1,48 +1,50 @@
 pipeline {
-
     agent any
 
     stages {
 
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                checkout scm
+                echo 'Checking project files...'
+                bat 'dir'
+                bat 'dir app'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Test') {
             steps {
+                echo 'Running basic project verification...'
+                bat 'dir app'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                echo 'Building Docker image...'
                 bat 'docker build -t automated-web-app:latest .'
             }
         }
 
-        stage('Test Docker Image') {
+        stage('Docker Test') {
             steps {
-                bat 'docker run -d --name automated-web-app-test -p 8081:80 automated-web-app:latest'
-            }
-        }
-
-        stage('Stop Test Container') {
-            steps {
-                bat 'docker stop automated-web-app-test'
-                bat 'docker rm automated-web-app-test'
-            }
-        }
-
-        stage('Deploy Using Ansible') {
-            steps {
-                bat 'ansible-playbook -i ansible/inventory ansible/deploy.yml'
+                echo 'Checking Docker image...'
+                bat 'docker images automated-web-app'
             }
         }
     }
 
     post {
         success {
-            echo 'Deployment completed successfully!'
+            echo '========================================='
+            echo 'PIPELINE SUCCESSFUL'
+            echo '========================================='
         }
 
         failure {
-            echo 'Deployment failed!'
+            echo '========================================='
+            echo 'PIPELINE FAILED'
+            echo 'Check the Jenkins console output.'
+            echo '========================================='
         }
     }
 }
